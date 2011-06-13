@@ -308,7 +308,57 @@ namespace Prelude
         }
 
 
-       
+        /// <summary>
+        /// Ostensibly, this method is for Creating or Updating a database record for each T in IEnumerable{T} however it can be used for any command that modifies the datastore and/or does not return a result set.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="xs"></param>
+        public void Save<T>(IEnumerable<T> xs)
+        {
+            
+            
+            using (var conn = new SqlConnection(GetConnectionString()))
+            {
+                conn.Open ();
+
+                var command = new SqlCommand (sql, conn);
+                command.Parameters.AddRange (_params.ToArray ());
+
+                var dict = this._params.ToDictionary (sp => sp.ParameterName.Substring (1));
+
+
+                var explicityly_mapped_properties =
+                                           from p in typeof (T).GetProperties ()
+                                           let c = p.GetCustomAttributes (typeof (ColumnMappingAttribute), false)
+                                           where c.Length > 0 && p.CanRead && dict.Keys.Contains (((ColumnMappingAttribute)c[0]).ColumnName)
+                                           select new { ColumnName = ((ColumnMappingAttribute)c[0]).ColumnName, Property = p };
+
+                var implicitly_mapped_properties =
+                                        from p in typeof (T).GetProperties ()
+                                        where p.GetCustomAttributes (typeof (ColumnMappingAttribute), false).Length == 0 && dict.Keys.Contains (p.Name) && p.CanRead
+                                        select new { ColumnName = p.Name, Property = p };
+
+
+                var properies = explicityly_mapped_properties.Union (implicitly_mapped_properties);
+
+                if (properies.Count () < 1)
+                    throw new Exception (string.Format ("The intersection of the query's parameter names and property names of type {0} is empty", typeof (T).FullName));
+
+                foreach (var x in xs)
+                {
+                    foreach (var p in properies)
+                    {
+                        var val = p.Property.GetValue (x, null) ?? DBNull.Value;
+
+                        dict[p.ColumnName].Value = val;
+                    }
+
+                    command.ExecuteNonQuery ();
+                }
+
+            }
+        }
+
 
         class stringComparer : IEqualityComparer<string>
         {
