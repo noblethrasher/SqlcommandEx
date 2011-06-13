@@ -1,0 +1,5 @@
+c:\users\rod\documents\Projects\SqlCommandEx\SqlCommandEx\bin\Debug\SqlCommandEx.dll
+c:\users\rod\documents\Projects\SqlCommandEx\SqlCommandEx\bin\Debug\SqlCommandEx.pdb
+c:\users\rod\documents\Projects\SqlCommandEx\SqlCommandEx\obj\Debug\ResolveAssemblyReference.cache
+c:\users\rod\documents\Projects\SqlCommandEx\SqlCommandEx\obj\Debug\SqlCommandEx.dll
+c:\users\rod\documents\Projects\SqlCommandEx\SqlCommandEx\obj\Debug\SqlCommandEx.pdb
