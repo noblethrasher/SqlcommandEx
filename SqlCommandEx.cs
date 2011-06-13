@@ -176,8 +176,8 @@ namespace Prelude
             {
                 conn.Open ();
 
-                var command = new SqlCommand (sql, conn);
-                var reader = command.ExecuteReader ();
+
+                var reader = GetSqlCommand (conn).ExecuteReader();
 
                 while (reader.Read ())
                     yield return new DynamicDataReader<SqlDataReader>(reader);
